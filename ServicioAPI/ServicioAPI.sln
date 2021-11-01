@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServicioAPI", "ServicioAPI.csproj", "{D4898530-EF5A-4651-AE45-2DC3FD9C6328}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfazMVC", "..\InterfazMVC\InterfazMVC.csproj", "{EAFED0DA-0246-44F0-BDDB-DB2DE5D24835}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4898530-EF5A-4651-AE45-2DC3FD9C6328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4898530-EF5A-4651-AE45-2DC3FD9C6328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4898530-EF5A-4651-AE45-2DC3FD9C6328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4898530-EF5A-4651-AE45-2DC3FD9C6328}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAFED0DA-0246-44F0-BDDB-DB2DE5D24835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAFED0DA-0246-44F0-BDDB-DB2DE5D24835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAFED0DA-0246-44F0-BDDB-DB2DE5D24835}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAFED0DA-0246-44F0-BDDB-DB2DE5D24835}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F412640C-1EF9-4793-88A4-C3BF12A0B559}
+	EndGlobalSection
+EndGlobal

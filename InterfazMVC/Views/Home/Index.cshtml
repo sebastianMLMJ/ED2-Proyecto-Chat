@@ -1,0 +1,27 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio</title>
+</head>
+<body>
+    <h1>Bienvenido</h1>
+    <a href="/Registro">Registrese</a>
+    <form method="post">
+        <label for="usuario">Usuario</label>
+        <input type="text" name="usuario" id="usuario" />
+        <br />
+        <label for="contrasenia">contraseña</label>
+        <input type="text" name="contrasenia" id="contrasenia" />
+        <br />
+        <input type="submit" name="enviar" value="registrarse" />
+    </form>
+    <div>@ViewBag.error</div>
+</body>
+</html>
