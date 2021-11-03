@@ -29,8 +29,7 @@ namespace InterfazMVC.Controllers
 
             if (responseString == "true")
             {
-              
-                return RedirectToAction("Registro");
+                return RedirectToAction("HomeUsuario","Usuario",new {idusuario = nuevoUsuario.usuario});
             }
             else
             {
