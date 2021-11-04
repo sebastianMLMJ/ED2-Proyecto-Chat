@@ -3,7 +3,7 @@
 *@
 @{
 }
-
+@model IEnumerable<InterfazMVC.Models.Contacto>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,9 +17,28 @@
             <li><a href="/Usuario/AgregarContacto"> Agregar Contacto</a></li>
             <li><a href="/Usuario/VerSolicitudes"> Ver Solicitudes</a></li>
         </ul>
-        
-        
     </nav>
-    
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <h3>Estos son tus contactos</h3>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.miusuario)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
 </body>
 </html>

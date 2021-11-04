@@ -4,11 +4,8 @@
     ViewData["Title"] = "VerSolicitudes";
 }
 
-<h1>VerSolicitudes</h1>
+<h1>Estas son tus solicitudes de amistad</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -25,8 +22,9 @@
                 @Html.DisplayFor(modelItem => item.Emisor)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                
+                @Html.ActionLink("Aceptar", "AceptarSolicitud", new { id = item.Emisor, valor = "aceptar" }) |
+                @Html.ActionLink("No aceptar", "AceptarSolicitud", new { id = item.Emisor, valor = "no aceptar" })
             </td>
         </tr>
 }

@@ -46,5 +46,19 @@ namespace ServicioAPI.Controllers
             List<SolicitudContacto> resultado = usuariodb.Find(Solicitudes => Solicitudes.receptor == usuario).ToList();
             return resultado;
         }
+
+        [Route("aceptarsolicitud")]
+        [HttpPost]
+        public void aceptarsolicitud(Contacto insertar)
+        {
+            var client = new MongoClient("mongodb://localhost:27017");
+            var database = client.GetDatabase("CHAT");
+            var usuariodb = database.GetCollection<Contacto>("Contactos");
+            usuariodb.InsertOne(insertar);
+            Contacto reverso = new Contacto();
+            reverso.miusuario = insertar.micontacto;
+            reverso.micontacto = insertar.miusuario;
+            usuariodb.InsertOne(reverso);
+        }
     }
 }

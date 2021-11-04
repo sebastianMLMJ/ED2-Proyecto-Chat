@@ -16,8 +16,9 @@ namespace InterfazMVC.Controllers
         private static readonly HttpClient client = new HttpClient();
 
         [HttpGet]
-        public IActionResult HomeUsuario(string idusuario, string mensaje)
+        public async Task<IActionResult>HomeUsuario(string idusuario, string mensaje)
         {
+
             ViewBag.Mensaje = mensaje;
             if (idusuario != null)
             {
@@ -26,7 +27,10 @@ namespace InterfazMVC.Controllers
             
             ViewBag.Usuario = HttpContext.Session.GetString("Usuario");
 
-            return View();
+            var response = await client.PostAsJsonAsync("http://localhost:34094/api/vercontactos", idusuario);
+            string resultado = await response.Content.ReadAsStringAsync();
+            List<SolicitudContacto> listacontactos = JsonConvert.DeserializeObject<List<SolicitudContacto>>(resultado);
+            return View(listacontactos);
         }
 
         [HttpGet]
@@ -68,6 +72,28 @@ namespace InterfazMVC.Controllers
             //var dato = JsonSerializer.Deserialize<List<Movie>>(contenido, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             
             return View(listasolicitudes);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AceptarSolicitud(string id, string valor)
+        {
+
+            if (valor =="aceptar")
+            {
+                Contacto nuevoContacto = new Contacto();
+                nuevoContacto.miusuario = HttpContext.Session.GetString("Usuario");
+                nuevoContacto.micontacto = id;
+                var response = await client.PostAsJsonAsync("http://localhost:34094/api/aceptarsolicitud", nuevoContacto);
+                string resultado = await response.Content.ReadAsStringAsync();
+                return RedirectToAction("HomeUsuario");
+            }
+            else
+            {
+                return RedirectToAction("VerSolicitudes");
+            }
+            
+            
+          
         }
 
     }
