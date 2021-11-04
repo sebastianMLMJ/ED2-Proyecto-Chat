@@ -33,8 +33,6 @@ namespace ServicioAPI.Controllers
             {
                 return false;
             }
-
-           
         }
         [Route("versolicitudes")]
         [HttpPost]
@@ -49,16 +47,38 @@ namespace ServicioAPI.Controllers
 
         [Route("aceptarsolicitud")]
         [HttpPost]
-        public void aceptarsolicitud(Contacto insertar)
+        public void aceptarsolicitud(SolicitudContacto solicitud)
+        {
+            Contacto insertar = new Contacto();
+            insertar.miusuario = solicitud.receptor;
+            insertar.micontacto = solicitud.emisor; 
+            var client = new MongoClient("mongodb://localhost:27017");
+            var database = client.GetDatabase("CHAT");
+            var eliminarsolicitud = database.GetCollection<SolicitudContacto>("Solicitudes");
+
+            eliminarsolicitud.DeleteOne(eliminar => eliminar.emisor == solicitud.emisor);
+
+            if (solicitud.status==2)
+            {
+                var usuariodb = database.GetCollection<Contacto>("Contactos");
+                usuariodb.InsertOne(insertar);
+                Contacto reverso = new Contacto();
+                reverso.miusuario = insertar.micontacto;
+                reverso.micontacto = insertar.miusuario;
+                usuariodb.InsertOne(reverso);
+            }
+            
+        }
+
+        [Route("vercontactos")]
+        [HttpPost]
+        public List<Contacto> vercontactos([FromBody]string idusuario)
         {
             var client = new MongoClient("mongodb://localhost:27017");
             var database = client.GetDatabase("CHAT");
             var usuariodb = database.GetCollection<Contacto>("Contactos");
-            usuariodb.InsertOne(insertar);
-            Contacto reverso = new Contacto();
-            reverso.miusuario = insertar.micontacto;
-            reverso.micontacto = insertar.miusuario;
-            usuariodb.InsertOne(reverso);
+            List<Contacto> resultado = usuariodb.Find(contacto =>contacto.miusuario  == idusuario).ToList();
+            return resultado;
         }
     }
 }

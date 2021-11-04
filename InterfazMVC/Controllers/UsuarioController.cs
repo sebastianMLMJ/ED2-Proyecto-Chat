@@ -24,12 +24,16 @@ namespace InterfazMVC.Controllers
             {
                 HttpContext.Session.SetString("Usuario", idusuario);
             }
+            else
+            {
+                idusuario= HttpContext.Session.GetString("Usuario");
+            }
             
             ViewBag.Usuario = HttpContext.Session.GetString("Usuario");
 
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/vercontactos", idusuario);
             string resultado = await response.Content.ReadAsStringAsync();
-            List<SolicitudContacto> listacontactos = JsonConvert.DeserializeObject<List<SolicitudContacto>>(resultado);
+            List<Contacto> listacontactos = JsonConvert.DeserializeObject<List<Contacto>>(resultado);
             return View(listacontactos);
         }
 
@@ -78,19 +82,22 @@ namespace InterfazMVC.Controllers
         public async Task<IActionResult> AceptarSolicitud(string id, string valor)
         {
 
-            if (valor =="aceptar")
+            SolicitudContacto nuevoContacto = new SolicitudContacto();
+            nuevoContacto.Receptor = HttpContext.Session.GetString("Usuario");
+            nuevoContacto.Emisor = id;
+            if (valor == "aceptar")
             {
-                Contacto nuevoContacto = new Contacto();
-                nuevoContacto.miusuario = HttpContext.Session.GetString("Usuario");
-                nuevoContacto.micontacto = id;
-                var response = await client.PostAsJsonAsync("http://localhost:34094/api/aceptarsolicitud", nuevoContacto);
-                string resultado = await response.Content.ReadAsStringAsync();
-                return RedirectToAction("HomeUsuario");
+                nuevoContacto.Status = 2;
             }
             else
             {
-                return RedirectToAction("VerSolicitudes");
+                nuevoContacto.Status = 0;
             }
+            var response = await client.PostAsJsonAsync("http://localhost:34094/api/aceptarsolicitud", nuevoContacto);
+            string resultado = await response.Content.ReadAsStringAsync();
+            return RedirectToAction("HomeUsuario");
+            
+            
             
             
           
