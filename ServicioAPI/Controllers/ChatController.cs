@@ -40,7 +40,16 @@ namespace ServicioAPI.Controllers
                 } 
             }
             return Ok();
+        }
 
+
+        [HttpPost]
+        [Route("Conversacion")]
+        public async Task<IActionResult> DevolverConversacion([FromBody]Contacto conversacion)
+        {
+            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\"+conversacion.miusuario+conversacion.micontacto+".sdes");
+            var objetoStream = new MemoryStream(bytes);
+            return File(objetoStream, "application/octet-stream", conversacion.miusuario+conversacion.micontacto + ".sdes");
         }
        
       

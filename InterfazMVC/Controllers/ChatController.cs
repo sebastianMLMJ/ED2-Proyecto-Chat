@@ -36,8 +36,19 @@ namespace InterfazMVC.Controllers
                 micontacto = HttpContext.Session.GetString("Contacto");
             }
 
+            Contacto Conversacion = new Contacto();
+            Conversacion.micontacto = micontacto;
+            Conversacion.miusuario = miusuario;
+            var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Conversacion", Conversacion);
+            Stream contenido = await response.Content.ReadAsStreamAsync();
+            
+            FileStream Transcriptor = new FileStream(rootpath.WebRootPath+"\\Archivos\\Ejemplo.txt",FileMode.Open);
+            await contenido.CopyToAsync(Transcriptor);
+            await Transcriptor.FlushAsync();
+            Transcriptor.Close();
+
             List<Mensaje> mensajes = new List<Mensaje>();
-            StreamReader sr = new StreamReader(new FileStream(rootpath.WebRootPath + "\\Archivos\\Ejemplo.txt", FileMode.Open));
+            StreamReader sr = new StreamReader(new FileStream(rootpath.WebRootPath + "\\Archivos\\Ejemplo.txt", FileMode.Open,FileAccess.ReadWrite));
             
                 string cadenamensaje = "";
                 while (cadenamensaje != null)
@@ -47,7 +58,7 @@ namespace InterfazMVC.Controllers
                     cadenamensaje = await sr.ReadLineAsync();
                     mensajes.Add(nuevoMensaje);
                 }
-
+            sr.Close();
             return View(mensajes);
         }
 
