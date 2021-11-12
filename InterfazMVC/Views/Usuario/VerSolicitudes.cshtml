@@ -22,9 +22,9 @@
                 @Html.DisplayFor(modelItem => item.Emisor)
             </td>
             <td>
-                
                 @Html.ActionLink("Aceptar", "AceptarSolicitud", new { id = item.Emisor, valor = "aceptar" }) |
                 @Html.ActionLink("No aceptar", "AceptarSolicitud", new { id = item.Emisor, valor = "no aceptar" })
+               
             </td>
         </tr>
 }

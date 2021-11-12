@@ -33,7 +33,11 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.micontacto)
+                        <a href="/Chat/Chat?miusuario=@item.miusuario&micontacto=@item.micontacto">
+                            <div>
+                                @Html.DisplayFor(modelItem => item.micontacto)
+                            </div>
+                        </a>
                     </td>
                 </tr>
             }

@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\Chats - Copy\**" />
+    <Content Remove="wwwroot\Chats - Copy\**" />
+    <EmbeddedResource Remove="wwwroot\Chats - Copy\**" />
+    <None Remove="wwwroot\Chats - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.13.2" />
   </ItemGroup>
 

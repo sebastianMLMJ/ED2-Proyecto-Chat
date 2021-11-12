@@ -1,0 +1,41 @@
+﻿@model IEnumerable<InterfazMVC.Models.Mensaje>
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>Este es tu chat</h1>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <h3>Estos son tus contactos</h3>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            
+                            <div>
+                                @Html.DisplayFor(modelItem => item.cadena)
+                            </div>
+                            
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+            <form method="post">
+                <input type="text" name="_mensaje" id="_mensaje" />
+                <input type="submit" name="enviar" value="enviar" />
+            </form>
+    </body>
+</html>
