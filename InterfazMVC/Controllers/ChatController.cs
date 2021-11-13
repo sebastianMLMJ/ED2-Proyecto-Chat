@@ -42,7 +42,7 @@ namespace InterfazMVC.Controllers
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Conversacion", Conversacion);
             Stream contenido = await response.Content.ReadAsStreamAsync();
             
-            FileStream Transcriptor = new FileStream(rootpath.WebRootPath+"\\Archivos\\Ejemplo.txt",FileMode.Open);
+            FileStream Transcriptor = new FileStream(rootpath.WebRootPath+"\\Archivos\\Ejemplo.txt",FileMode.Create);
             await contenido.CopyToAsync(Transcriptor);
             await Transcriptor.FlushAsync();
             Transcriptor.Close();
@@ -64,6 +64,17 @@ namespace InterfazMVC.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Chat(string _mensaje) {
+            //char[] bytes = _mensaje.ToCharArray();
+            //List<byte> bytesReales = new List<byte>();
+            //for (int i = 0; i < bytes.Length; i++)
+            //{
+            //    byte[] temp = BitConverter.GetBytes(bytes[i]);
+            //    for (int j = 0; j < temp.Length; j++)
+            //    {
+            //        bytesReales.Add(temp[j]);
+            //    }
+            //}
+
             Mensaje nuevoMensaje = new Mensaje();
             nuevoMensaje.cadena = _mensaje;
             nuevoMensaje.emisor= HttpContext.Session.GetString("Usuario");
@@ -71,7 +82,6 @@ namespace InterfazMVC.Controllers
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
             string resultado = await response.Content.ReadAsStringAsync();
             return RedirectToAction("Chat");
-
         }
     }
 }

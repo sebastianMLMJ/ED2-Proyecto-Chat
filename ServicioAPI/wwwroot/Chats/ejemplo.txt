@@ -1,6 +1,0 @@
-﻿Sebas:Hola
-Edgar:Hola
-Sebas:Como estas?
-Edgar:Bien gracias, que haciendo?
-Sebas:Programando oiga 
-Edgar:Ta fuerte el asunto
