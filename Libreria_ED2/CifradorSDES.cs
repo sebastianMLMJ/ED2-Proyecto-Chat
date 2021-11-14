@@ -149,7 +149,7 @@ namespace Libreria_ED2
 
                     string[] ronda1 = Ronda(ipS, llave1);
                     string swap = ronda1[1] + ronda1[0];
-                    Console.WriteLine(swap);
+                  
                     char[] swapEntrada = swap.ToCharArray();
 
                     string[] ronda2 = Ronda(swapEntrada, llave2);
@@ -452,8 +452,7 @@ namespace Libreria_ED2
                 llave2 += k2[i].ToString();
             }
 
-            Console.WriteLine(llave1);
-            Console.WriteLine(llave2);
+            
 
             BinaryReader br = new BinaryReader(new FileStream(dirLectura, FileMode.OpenOrCreate));
             string nombreOriginal = br.ReadString();
@@ -485,7 +484,6 @@ namespace Libreria_ED2
 
                     string[] ronda1 = Ronda(ipS, llave2);
                     string swap = ronda1[1] + ronda1[0];
-                    Console.WriteLine(swap);
                     char[] swapEntrada = swap.ToCharArray();
 
                     string[] ronda2 = Ronda(swapEntrada, llave1);
