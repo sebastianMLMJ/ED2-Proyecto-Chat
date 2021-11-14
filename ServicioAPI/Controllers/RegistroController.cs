@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ServicioAPI.Models;
 using MongoDB.Driver;
+using Libreria_ED2;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ServicioAPI.Controllers
 {
@@ -13,6 +16,13 @@ namespace ServicioAPI.Controllers
     [ApiController]
     public class RegistroController : ControllerBase
     {
+        private IWebHostEnvironment rootpath;
+
+        public RegistroController(IWebHostEnvironment appEnvironment)
+        {
+            rootpath = appEnvironment;
+        }
+
 
         [Route("login")]
         [HttpPost]
@@ -27,6 +37,7 @@ namespace ServicioAPI.Controllers
 
             if (resultado.Count>0)
             {
+                
                 if (resultado[0].contrasenia==usuarioLogear.contrasenia)
                 {
                     return true;
@@ -40,11 +51,11 @@ namespace ServicioAPI.Controllers
         [HttpPost]
         public bool RegistrarUsuario(Usuario nuevoUsuario) 
         {
-            
+
             var client = new MongoClient("mongodb://localhost:27017");
             var database = client.GetDatabase("CHAT");
             var usuariodb = database.GetCollection<Usuario>("Usuario");
-            Usuario usuariob = new Usuario();
+            
             List<Usuario> resultado = usuariodb.Find(usuarioBuscar => usuarioBuscar.usuario == nuevoUsuario.usuario || usuarioBuscar.correo==nuevoUsuario.correo).ToList();
 
             if (resultado.Count>0)

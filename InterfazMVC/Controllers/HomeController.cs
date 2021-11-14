@@ -8,11 +8,20 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Libreria_ED2;
 
 namespace InterfazMVC.Controllers
 {
     public class HomeController : Controller
     {
+        private IWebHostEnvironment rootpath;
+
+        public HomeController(IWebHostEnvironment appEnvironment)
+        {
+            rootpath = appEnvironment;
+        }
 
         private static readonly HttpClient client = new HttpClient();
         [HttpGet]
@@ -21,9 +30,29 @@ namespace InterfazMVC.Controllers
             return View();
         }
 
+        //LOGIN
         [HttpPost]
         public async Task<IActionResult> Index(Usuario nuevoUsuario)
         {
+
+            // COMIENZA PROCESO DE CIFRADO
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            string contrasenia = nuevoUsuario.contrasenia;
+            StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Archivos\\" + nuevoUsuario.usuario + "temp.txt", false);
+            await sw.WriteLineAsync(contrasenia);
+            sw.Close();
+
+            //string[] correo = nuevoUsuario.correo.Split('@');
+            int cv = cifrador.ClaveChat(nuevoUsuario.usuario);
+            cifrador.Cifrar(rootpath.WebRootPath + "\\Archivos\\" + nuevoUsuario.usuario + "temp.txt", rootpath.WebRootPath + "\\Archivos\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", "Registro" + nuevoUsuario.usuario, cv);
+
+            string contraseniacif = "";
+            StreamReader sr = new StreamReader(rootpath.WebRootPath + "\\Archivos\\" + "Registro" + nuevoUsuario.usuario + ".sdes");
+            contraseniacif = await sr.ReadToEndAsync();
+            sr.Close();
+            //TERMINA PROCESO DE CIFRADO Y SE ASIGNA
+            nuevoUsuario.contrasenia = contraseniacif;
+
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Registro/login", nuevoUsuario);
             var responseString = await response.Content.ReadAsStringAsync();
 
@@ -50,6 +79,24 @@ namespace InterfazMVC.Controllers
         [Route("Registro")]
         public async Task<IActionResult> RegistrarUsuario(Usuario nuevoUsuario)
         {
+            // COMIENZA PROCESO DE CIFRADO
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            string contrasenia = nuevoUsuario.contrasenia;
+            StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Archivos\\"+nuevoUsuario.usuario+"temp.txt", false);
+            await sw.WriteLineAsync(contrasenia);
+            sw.Close();
+
+            //string[] correo = nuevoUsuario.correo.Split('@');
+            int cv = cifrador.ClaveChat(nuevoUsuario.usuario);
+            cifrador.Cifrar(rootpath.WebRootPath + "\\Archivos\\" + nuevoUsuario.usuario + "temp.txt", rootpath.WebRootPath + "\\Archivos\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt","Registro"+nuevoUsuario.usuario,cv);
+            
+            string contraseniacif = "";
+            StreamReader sr = new StreamReader(rootpath.WebRootPath + "\\Archivos\\"+ "Registro" + nuevoUsuario.usuario+".sdes");
+            contraseniacif = await sr.ReadToEndAsync();
+            sr.Close();
+            //TERMINA PROCESO DE CIFRADO Y SE ASIGNA
+            nuevoUsuario.contrasenia = contraseniacif;
+
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Registro/registrar", nuevoUsuario);
             var responseString = await response.Content.ReadAsStringAsync();
 

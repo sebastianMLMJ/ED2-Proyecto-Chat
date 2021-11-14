@@ -9,4 +9,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Libreria_ED2\Libreria_ED2.csproj" />
+  </ItemGroup>
+
 </Project>
