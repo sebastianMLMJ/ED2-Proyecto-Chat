@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Chats\" />
+    <ProjectReference Include="..\Libreria_ED2\Libreria_ED2.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libreria_ED2\Libreria_ED2.csproj" />
+    <Folder Include="wwwroot\Chats\" />
   </ItemGroup>
 
 

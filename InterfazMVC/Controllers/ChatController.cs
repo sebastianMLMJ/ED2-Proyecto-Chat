@@ -64,17 +64,7 @@ namespace InterfazMVC.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Chat(string _mensaje) {
-            //char[] bytes = _mensaje.ToCharArray();
-            //List<byte> bytesReales = new List<byte>();
-            //for (int i = 0; i < bytes.Length; i++)
-            //{
-            //    byte[] temp = BitConverter.GetBytes(bytes[i]);
-            //    for (int j = 0; j < temp.Length; j++)
-            //    {
-            //        bytesReales.Add(temp[j]);
-            //    }
-            //}
-
+            
             Mensaje nuevoMensaje = new Mensaje();
             nuevoMensaje.cadena = _mensaje;
             nuevoMensaje.emisor= HttpContext.Session.GetString("Usuario");

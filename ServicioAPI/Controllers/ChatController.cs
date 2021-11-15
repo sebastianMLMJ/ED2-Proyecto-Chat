@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using ServicioAPI.Models;
+using Libreria_ED2;
 
 namespace ServicioAPI.Controllers
 {
@@ -26,26 +27,92 @@ namespace ServicioAPI.Controllers
         [Route("Escribir")]
         public async Task<IActionResult> EscribirChat(Mensaje insertar)
         {
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            CompresorLZW compresor = new CompresorLZW(1024);
+
             if (!Directory.Exists(rootpath.WebRootPath+"\\Chats\\"))
             {
                 Directory.CreateDirectory(rootpath.WebRootPath + "\\Chats\\");
             }
-            
 
-            using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", true))
+            //Si la conversacion esta vacia
+            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".lzw") == false || System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".lzw") == false)
             {
-                string resultado = insertar.emisor + ":" + insertar.cadena;
-                await sw.WriteLineAsync(resultado);
-                await sw.FlushAsync();
-                sw.Close();
+                if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".lzw") == false)
+                {
+                    using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt", true))
+                    {
+                        string resultado = insertar.emisor + ":" + insertar.cadena;
+                        await sw.WriteLineAsync(resultado);
+                        await sw.FlushAsync();
+                        sw.Close();
+                    }
+                }
+                if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".lzw") == false)
+                {
+                    using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt", true))
+                    {
+                        string resultado = insertar.emisor + ":" + insertar.cadena;
+                        await sw.WriteLineAsync(resultado);
+                        await sw.FlushAsync();
+                        sw.Close();
+                    }
+                }
+
+                
+                int cv = cifrador.ClaveChat(insertar.emisor);
+                int cv2 = cifrador.ClaveChat(insertar.receptor);
+                cifrador.Cifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt", rootpath.WebRootPath + "\\Chats\\",rootpath.WebRootPath+"\\Archivos\\Permutaciones.txt",insertar.emisor+insertar.receptor,cv);
+                cifrador.Cifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", insertar.receptor + insertar.emisor, cv2);
+
+                compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", rootpath.WebRootPath + "\\Chats\\",insertar.emisor+insertar.receptor);
+                compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.receptor + insertar.emisor);
+
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes") ;
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor+".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
             }
-            using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", true))
+            else
             {
-                string resultado = insertar.emisor + ":" + insertar.cadena;
-                await sw.WriteLineAsync(resultado);
-                await sw.FlushAsync();
-                sw.Close();
+                compresor.Descomprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".lzw", rootpath.WebRootPath + "\\Chats\\");
+                compresor.Descomprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".lzw", rootpath.WebRootPath + "\\Chats\\");
+
+                int cv = cifrador.ClaveChat(insertar.emisor);
+                int cv2 = cifrador.ClaveChat(insertar.receptor);
+
+                cifrador.Decifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", cv);
+                cifrador.Decifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", cv2);
+
+                using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt", true))
+                {
+                    string resultado = insertar.emisor + ":" + insertar.cadena;
+                    await sw.WriteLineAsync(resultado);
+                    await sw.FlushAsync();
+                    sw.Close();
+                }
+                using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt", true))
+                {
+                    string resultado = insertar.emisor + ":" + insertar.cadena;
+                    await sw.WriteLineAsync(resultado);
+                    await sw.FlushAsync();
+                    sw.Close();
+                }
+
+                cifrador.Cifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", insertar.emisor + insertar.receptor, cv);
+                cifrador.Cifrar(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", insertar.receptor + insertar.emisor, cv2);
+
+                compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.emisor + insertar.receptor);
+                compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.receptor + insertar.emisor);
+
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
+
             }
+            
+            
 
             return Ok();
         }
@@ -55,18 +122,15 @@ namespace ServicioAPI.Controllers
         [Route("Conversacion")]
         public async Task<IActionResult> DevolverConversacion([FromBody]Contacto conversacion)
         {
-            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".sdes") == false)
+
+            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt") == false)
             {
-                var Cerrar1 = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".sdes");
-                Cerrar1.Close();
+                Stream archivo = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
+                archivo.Close();
+
             }
-            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + conversacion.micontacto + conversacion.miusuario + ".sdes") == false)
-            {
-                var Cerrar2 = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\" + conversacion.micontacto + conversacion.miusuario + ".sdes");
-                Cerrar2.Close();
-            }
-            
-            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\"+conversacion.miusuario+conversacion.micontacto+".sdes");
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
             var objetoStream = new MemoryStream(bytes);
             return File(objetoStream, "application/octet-stream", conversacion.miusuario+conversacion.micontacto + ".sdes");
         }
