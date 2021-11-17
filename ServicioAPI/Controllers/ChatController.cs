@@ -105,10 +105,10 @@ namespace ServicioAPI.Controllers
                 compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.emisor + insertar.receptor);
                 compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.receptor + insertar.emisor);
 
-                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes");
-                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes");
-                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
-                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
+                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes");
+                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes");
+                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
+                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
 
             }
             
@@ -122,16 +122,38 @@ namespace ServicioAPI.Controllers
         [Route("Conversacion")]
         public async Task<IActionResult> DevolverConversacion([FromBody]Contacto conversacion)
         {
-
-            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt") == false)
-            {
-                Stream archivo = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
-                archivo.Close();
-
-            }
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            CompresorLZW compresor = new CompresorLZW(1024);
 
             var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
             var objetoStream = new MemoryStream(bytes);
+
+            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt") == false)
+            {
+                var archivo = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
+                archivo.Close();
+            }
+
+            if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".lzw") == true)
+            {
+                compresor.Descomprimir(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".lzw", rootpath.WebRootPath + "\\Chats\\");
+                
+                int cv = cifrador.ClaveChat(conversacion.miusuario);
+                int cv2 = cifrador.ClaveChat(conversacion.micontacto);
+
+                cifrador.Decifrar(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".sdes", rootpath.WebRootPath + "\\Chats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", cv);
+                
+                bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + "temp" + ".txt");
+                objetoStream = new MemoryStream(bytes);
+                
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + "temp.txt");
+                
+                return File(objetoStream, "application/octet-stream", conversacion.miusuario + conversacion.micontacto + "temp" + ".txt");
+            }
+
+
+
             return File(objetoStream, "application/octet-stream", conversacion.miusuario+conversacion.micontacto + ".sdes");
         }
        
