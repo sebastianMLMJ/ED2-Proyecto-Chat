@@ -105,10 +105,10 @@ namespace ServicioAPI.Controllers
                 compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.emisor + insertar.receptor);
                 compresor.Comprimir(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes", rootpath.WebRootPath + "\\Chats\\", insertar.receptor + insertar.emisor);
 
-                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes");
-                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes");
-                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
-                //System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".sdes");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt");
+                System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
 
             }
             

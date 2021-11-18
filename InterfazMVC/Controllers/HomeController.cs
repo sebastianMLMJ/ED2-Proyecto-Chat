@@ -55,7 +55,8 @@ namespace InterfazMVC.Controllers
 
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Registro/login", nuevoUsuario);
             var responseString = await response.Content.ReadAsStringAsync();
-
+            System.IO.File.Delete(rootpath.WebRootPath + "\\Archivos\\" + nuevoUsuario.usuario + "temp.txt");
+            System.IO.File.Delete(rootpath.WebRootPath + "\\Archivos\\" + "Registro" + nuevoUsuario.usuario + ".sdes");
             if (responseString == "true")
             {
                 return RedirectToAction("HomeUsuario","Usuario",new {idusuario = nuevoUsuario.usuario});
@@ -99,6 +100,9 @@ namespace InterfazMVC.Controllers
 
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Registro/registrar", nuevoUsuario);
             var responseString = await response.Content.ReadAsStringAsync();
+
+            System.IO.File.Delete(rootpath.WebRootPath + "\\Archivos\\" + nuevoUsuario.usuario + "temp.txt");
+            System.IO.File.Delete(rootpath.WebRootPath + "\\Archivos\\"+"Registro" + nuevoUsuario.usuario+".sdes");
 
             if (responseString=="true")
             {

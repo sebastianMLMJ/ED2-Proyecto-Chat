@@ -24,6 +24,7 @@
                             
                             <div>
                                 @Html.DisplayFor(modelItem => item.cadena)
+                                <br />
                             </div>
                             
                         </td>
@@ -34,6 +35,10 @@
 
             <form method="post">
                 <input type="text" name="_mensaje" id="_mensaje" />
+                <input type="submit" name="enviar" value="enviar" />
+            </form>
+            <form action="/Chat/ChatArchivo" method="post" enctype="multipart/form-data">
+                <input type="file" name="archivo" value="archivo" id="archivo"/>
                 <input type="submit" name="enviar" value="enviar" />
             </form>
     </body>

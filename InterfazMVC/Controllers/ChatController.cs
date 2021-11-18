@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.Net.Http;
-
+using System.Text;
 namespace InterfazMVC.Controllers
 {
     public class ChatController : Controller
@@ -63,14 +63,42 @@ namespace InterfazMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Chat(string _mensaje) {
-            
+        public async Task<IActionResult> Chat(string _mensaje)
+        {
+
             Mensaje nuevoMensaje = new Mensaje();
             nuevoMensaje.cadena = _mensaje;
-            nuevoMensaje.emisor= HttpContext.Session.GetString("Usuario");
+            nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
             nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
             string resultado = await response.Content.ReadAsStringAsync();
+            return RedirectToAction("Chat");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChatArchivo([FromForm(Name="archivo")]IFormFile archivo)
+        {
+            if (archivo!=null)
+            {
+                string resultado="";
+                StringBuilder concatenador = new StringBuilder();
+                using (StreamReader sr = new StreamReader(archivo.OpenReadStream()))
+                {
+                    while (sr.Peek() >= 0)
+                    {
+                        concatenador.Append(await sr.ReadLineAsync());
+                    }
+                }
+                resultado += concatenador.ToString();
+
+                Mensaje nuevoMensaje = new Mensaje();
+                nuevoMensaje.cadena = resultado;
+                nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
+                nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
+                var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
+                string resultadopost = await response.Content.ReadAsStringAsync();
+            }
+
             return RedirectToAction("Chat");
         }
     }

@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Libreria_ED2\Libreria_ED2.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Archivos\" />
+  </ItemGroup>
+
 </Project>
