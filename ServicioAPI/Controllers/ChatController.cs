@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using ServicioAPI.Models;
 using Libreria_ED2;
+using MongoDB.Driver;
 
 namespace ServicioAPI.Controllers
 {
@@ -22,11 +23,14 @@ namespace ServicioAPI.Controllers
             rootpath = appEnvironment;
         }
         
-
         [HttpPost]
         [Route("Escribir")]
         public async Task<IActionResult> EscribirChat(Mensaje insertar)
         {
+            var client = new MongoClient("mongodb://localhost:27017");
+            var database = client.GetDatabase("CHAT");
+            var chatdb= database.GetCollection<Chat>("Chats");
+                        
             CifradorSDES cifrador = new CifradorSDES(1024);
             CompresorLZW compresor = new CompresorLZW(1024);
 
@@ -38,6 +42,12 @@ namespace ServicioAPI.Controllers
             //Si la conversacion esta vacia
             if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".lzw") == false || System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + ".lzw") == false)
             {
+                Chat nuevoMensaje = new Chat();
+                nuevoMensaje.emisor = insertar.emisor;
+                nuevoMensaje.receptor = insertar.receptor;
+                nuevoMensaje.ruta = rootpath.WebRootPath;
+                await chatdb.InsertOneAsync(nuevoMensaje);
+               
                 if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + ".lzw") == false)
                 {
                     using (StreamWriter sw = new StreamWriter(rootpath.WebRootPath + "\\Chats\\" + insertar.emisor + insertar.receptor + "temp.txt", true))
@@ -111,8 +121,47 @@ namespace ServicioAPI.Controllers
                 System.IO.File.Delete(rootpath.WebRootPath + "\\Chats\\" + insertar.receptor + insertar.emisor + "temp.txt");
 
             }
+
+            if (insertar.archivo!=null)
+            {
+                Stream contenido = insertar.archivo.OpenReadStream();
+
+                FileStream Transcriptor = new FileStream(rootpath.WebRootPath + "\\Archivos\\"+insertar.archivo.FileName, FileMode.Create);
+                await contenido.CopyToAsync(Transcriptor);
+                await Transcriptor.FlushAsync();
+                Transcriptor.Close();
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("subirarchivo")]
+        public async Task<IActionResult> SubirArchivo([FromForm] IFormFile archivo,[FromForm] string emisor, [FromForm] string receptor)
+        {
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            CompresorLZW compresor = new CompresorLZW(1024);
+
+            Stream bytes = archivo.OpenReadStream();
+            FileStream filestream = new FileStream(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, FileMode.Create);
+            await bytes.CopyToAsync(filestream);
+            filestream.Flush();
+            filestream.Close();
+
+            int cv = cifrador.ClaveChat(emisor);
+            int cv2 = cifrador.ClaveChat(receptor);
+
+            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", emisor + receptor, cv);
+            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", receptor + emisor, cv2);
+
+            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", emisor + receptor);
+            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", receptor + emisor);
+
+            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes");
+            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + ".sdes");
+            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName);
             
-            
+
 
             return Ok();
         }

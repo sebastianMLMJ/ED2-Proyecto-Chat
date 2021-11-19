@@ -65,41 +65,86 @@ namespace InterfazMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Chat(string _mensaje)
         {
-
-            Mensaje nuevoMensaje = new Mensaje();
-            nuevoMensaje.cadena = _mensaje;
-            nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
-            nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
-            var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
-            string resultado = await response.Content.ReadAsStringAsync();
+            if (_mensaje !=null)
+            {
+                Mensaje nuevoMensaje = new Mensaje();
+                nuevoMensaje.cadena = _mensaje;
+                nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
+                nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
+                var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
+                string resultado = await response.Content.ReadAsStringAsync();
+                
+            }
             return RedirectToAction("Chat");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ChatArchivo([FromForm(Name="archivo")]IFormFile archivo)
-        {
-            if (archivo!=null)
-            {
-                string resultado="";
-                StringBuilder concatenador = new StringBuilder();
-                using (StreamReader sr = new StreamReader(archivo.OpenReadStream()))
-                {
-                    while (sr.Peek() >= 0)
-                    {
-                        concatenador.Append(await sr.ReadLineAsync());
-                    }
-                }
-                resultado += concatenador.ToString();
+        //[HttpPost]
+        //public async Task<IActionResult> ChatArchivo([FromForm(Name="archivo")]IFormFile archivo)
+        //{
+        //    if (archivo!=null)
+        //    {
+        //        string resultado="";
+        //        StringBuilder concatenador = new StringBuilder();
+        //        using (StreamReader sr = new StreamReader(archivo.OpenReadStream()))
+        //        {
+        //            while (sr.Peek() >= 0)
+        //            {
+        //                concatenador.Append(await sr.ReadLineAsync());
+        //            }
+        //        }
+        //        resultado += concatenador.ToString();
 
+        //        Mensaje nuevoMensaje = new Mensaje();
+        //        nuevoMensaje.cadena = resultado;
+        //        nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
+        //        nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
+        //        var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
+        //        string resultadopost = await response.Content.ReadAsStringAsync();
+        //    }
+
+        //    return RedirectToAction("Chat");
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> ChatArchivo([FromForm(Name = "archivo")] IFormFile archivo)
+        {
+            if (archivo != null)
+            {
                 Mensaje nuevoMensaje = new Mensaje();
+
+                nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
+                nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
+                string resultado = "url:"+archivo.FileName;
                 nuevoMensaje.cadena = resultado;
                 nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
                 nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
                 var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
                 string resultadopost = await response.Content.ReadAsStringAsync();
+                using var content = new MultipartFormDataContent(nuevoMensaje.emisor+nuevoMensaje.receptor);
+                FileStream bytes = new FileStream(rootpath.WebRootPath + "\\Archivos\\temp.txt", FileMode.Create);
+                await archivo.CopyToAsync(bytes);
+                await bytes.FlushAsync();
+                bytes.Close();
+                var ruta = rootpath.WebRootPath + "\\Archivos\\temp.txt";
+                using Stream filestream = System.IO.File.OpenRead(ruta);
+                content.Add(new StreamContent(filestream),"archivo",archivo.FileName);
+                content.Add(new StringContent(nuevoMensaje.emisor),"emisor");
+                content.Add(new StringContent(nuevoMensaje.receptor), "receptor");
+                response = await client.PostAsync("http://localhost:34094/api/Chat/subirarchivo", content);
+                resultadopost = await response.Content.ReadAsStringAsync();
+                filestream.Close();
+                
+
+
             }
 
             return RedirectToAction("Chat");
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> devolverArchivo()
+        //{
+
+        //}
     }
 }
