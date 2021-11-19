@@ -141,10 +141,28 @@ namespace InterfazMVC.Controllers
             return RedirectToAction("Chat");
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> devolverArchivo()
-        //{
+        [HttpGet]
+        public async Task<IActionResult> devolverArchivo(string id)
+        {
+            Mensaje buscarArchivo = new Mensaje();
 
-        //}
+
+            buscarArchivo.emisor = HttpContext.Session.GetString("Usuario");
+            buscarArchivo.receptor = HttpContext.Session.GetString("Contacto");
+            string[] arreglo = id.Split(':');
+            buscarArchivo.cadena = arreglo[2];
+            var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/descargar", buscarArchivo);
+            Stream contenido = await response.Content.ReadAsStreamAsync();
+
+            FileStream Transcriptor = new FileStream(rootpath.WebRootPath + "\\Archivos\\Ejemplo.txt", FileMode.Create);
+            await contenido.CopyToAsync(Transcriptor);
+            await Transcriptor.FlushAsync();
+            Transcriptor.Close();
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Archivos\\Ejemplo.txt");
+            var objetoStream = new MemoryStream(bytes);
+
+            return File(objetoStream, "application/octet-stream", buscarArchivo.cadena);
+        }
     }
 }

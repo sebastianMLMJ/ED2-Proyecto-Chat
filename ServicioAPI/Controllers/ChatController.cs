@@ -141,7 +141,8 @@ namespace ServicioAPI.Controllers
         {
             CifradorSDES cifrador = new CifradorSDES(1024);
             CompresorLZW compresor = new CompresorLZW(1024);
-
+            string[] arreglonombre = archivo.FileName.Split('.');
+            string nombreArchivo = arreglonombre[0];
             Stream bytes = archivo.OpenReadStream();
             FileStream filestream = new FileStream(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, FileMode.Create);
             await bytes.CopyToAsync(filestream);
@@ -151,21 +152,39 @@ namespace ServicioAPI.Controllers
             int cv = cifrador.ClaveChat(emisor);
             int cv2 = cifrador.ClaveChat(receptor);
 
-            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", emisor + receptor, cv);
-            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", receptor + emisor, cv2);
+            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", emisor + receptor+nombreArchivo, cv);
+            cifrador.Cifrar(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName, rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", receptor + emisor+ nombreArchivo, cv2);
 
-            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", emisor + receptor);
-            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", receptor + emisor);
+            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + nombreArchivo + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", emisor + receptor + nombreArchivo);
+            compresor.Comprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + nombreArchivo + ".sdes", rootpath.WebRootPath + "\\ArchivosChats\\", receptor + emisor + nombreArchivo);
 
-            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes");
-            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + ".sdes");
-            //System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName);
-            
-
+            System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes");
+            System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + receptor + emisor + ".sdes");
+            System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName);
 
             return Ok();
         }
 
+        [HttpPost]
+        [Route("descargar")]
+        public async Task<IActionResult> devolverArchivo(Mensaje buscarArchivo)
+        {
+            string emisor = buscarArchivo.emisor;
+            string receptor = buscarArchivo.receptor;
+            string [] arreglonombre = buscarArchivo.cadena.Split('.');
+            string archivo = arreglonombre[0];
+            string extension = arreglonombre[1];
+            CifradorSDES cifrador = new CifradorSDES(1024);
+            CompresorLZW compresor = new CompresorLZW(1024);
+            int cv = cifrador.ClaveChat(emisor);
+            int cv2 = cifrador.ClaveChat(receptor);
+            compresor.Descomprimir(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + archivo +".lzw", rootpath.WebRootPath + "\\ArchivosChats\\");
+            cifrador.Decifrar(rootpath.WebRootPath + "\\ArchivosChats\\" +emisor+receptor+archivo+".sdes" , rootpath.WebRootPath + "\\ArchivosChats\\", rootpath.WebRootPath + "\\Archivos\\Permutaciones.txt", cv);
+            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\ArchivosChats\\"+archivo+"."+ extension);
+            var objetoStream = new MemoryStream(bytes);
+
+            return File(objetoStream, "application/octet-stream",archivo+"."+ extension);
+        }
 
         [HttpPost]
         [Route("Conversacion")]
@@ -174,15 +193,16 @@ namespace ServicioAPI.Controllers
             CifradorSDES cifrador = new CifradorSDES(1024);
             CompresorLZW compresor = new CompresorLZW(1024);
 
-            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
-            var objetoStream = new MemoryStream(bytes);
-
             if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt") == false)
             {
                 var archivo = System.IO.File.Create(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
                 archivo.Close();
             }
 
+            var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\Chats\\DocumentoVacio.txt");
+            var objetoStream = new MemoryStream(bytes);
+            
+            
             if (System.IO.File.Exists(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".lzw") == true)
             {
                 compresor.Descomprimir(rootpath.WebRootPath + "\\Chats\\" + conversacion.miusuario + conversacion.micontacto + ".lzw", rootpath.WebRootPath + "\\Chats\\");
@@ -200,8 +220,6 @@ namespace ServicioAPI.Controllers
                 
                 return File(objetoStream, "application/octet-stream", conversacion.miusuario + conversacion.micontacto + "temp" + ".txt");
             }
-
-
 
             return File(objetoStream, "application/octet-stream", conversacion.miusuario+conversacion.micontacto + ".sdes");
         }

@@ -23,7 +23,19 @@
                         <td>
                             
                             <div>
-                                @Html.DisplayFor(modelItem => item.cadena)
+                                @{
+                                    @Html.DisplayFor(modelItem => item.cadena);
+
+                                    string[] validador = item.cadena.Split(':');
+                                    if (validador.Length > 2)
+                                    {
+                                        if (validador[1] == "url")
+                                        {
+                                            @Html.ActionLink("Descargar", "devolverArchivo", new { id = item.cadena })
+                                        }
+                                    }
+                                }
+
                                 <br />
                             </div>
                             
