@@ -15,6 +15,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Archivos\" />
+    <Folder Include="wwwroot\Chats\" />
+    <Folder Include="wwwroot\ArchivosChats\" />
   </ItemGroup>
 
 </Project>

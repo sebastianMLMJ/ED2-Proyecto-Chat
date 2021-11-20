@@ -4,6 +4,7 @@
     <html>
     <head>
         <title>Chat</title>
+        <link href="~/css/Colorbuscar.css" rel="stylesheet" />
     </head>
     <body>
         <h1>Este es tu chat</h1>
@@ -21,11 +22,21 @@
                 {
                     <tr>
                         <td>
-                            
+
                             <div>
                                 @{
-                                    @Html.DisplayFor(modelItem => item.cadena);
 
+
+                                    if (ViewBag.buscarMensaje != null&& item.cadena.Contains(ViewBag.buscarMensaje))
+                                    {
+                                         <div class="colorfondo">
+                                             @Html.DisplayFor(modelItem => item.cadena);
+                                         </div>
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(modelItem => item.cadena);
+                                    }
                                     string[] validador = item.cadena.Split(':');
                                     if (validador.Length > 2)
                                     {
@@ -38,20 +49,24 @@
 
                                 <br />
                             </div>
-                            
+
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
 
-            <form method="post">
-                <input type="text" name="_mensaje" id="_mensaje" />
-                <input type="submit" name="enviar" value="enviar" />
-            </form>
-            <form action="/Chat/ChatArchivo" method="post" enctype="multipart/form-data">
-                <input type="file" name="archivo" value="archivo" id="archivo"/>
-                <input type="submit" name="enviar" value="enviar" />
-            </form>
+        <form method="post">
+            <input type="text" name="_mensaje" id="_mensaje" />
+            <input type="submit" name="enviar" value="enviar" />
+        </form>
+        <form action="/Chat/ChatArchivo" method="post" enctype="multipart/form-data">
+            <input type="file" name="archivo" value="archivo" id="archivo" />
+            <input type="submit" name="enviar" value="enviar" />
+        </form>
+        <form action="/Chat/Buscar" method="get">
+            <input type="text" name="_mensaje" id="_mensaje" />
+            <input type="submit" name="buscar" value="buscar" />
+        </form>
     </body>
 </html>

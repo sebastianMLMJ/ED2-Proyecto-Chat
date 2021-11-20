@@ -42,13 +42,13 @@ namespace InterfazMVC.Controllers
             var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Conversacion", Conversacion);
             Stream contenido = await response.Content.ReadAsStreamAsync();
             
-            FileStream Transcriptor = new FileStream(rootpath.WebRootPath+"\\Archivos\\Ejemplo.txt",FileMode.Create);
+            FileStream Transcriptor = new FileStream(rootpath.WebRootPath+"\\Archivos\\"+miusuario+".txt",FileMode.Create);
             await contenido.CopyToAsync(Transcriptor);
             await Transcriptor.FlushAsync();
             Transcriptor.Close();
 
             List<Mensaje> mensajes = new List<Mensaje>();
-            StreamReader sr = new StreamReader(new FileStream(rootpath.WebRootPath + "\\Archivos\\Ejemplo.txt", FileMode.Open,FileAccess.ReadWrite));
+            StreamReader sr = new StreamReader(new FileStream(rootpath.WebRootPath + "\\Archivos\\" + miusuario + ".txt", FileMode.Open,FileAccess.ReadWrite));
             
                 string cadenamensaje = "";
                 while (cadenamensaje != null)
@@ -59,9 +59,12 @@ namespace InterfazMVC.Controllers
                     mensajes.Add(nuevoMensaje);
                 }
             sr.Close();
+
+            ViewBag.buscarMensaje = mensaje;
             return View(mensajes);
         }
 
+        // Metodo para enviar mensaje de texto por textbox
         [HttpPost]
         public async Task<IActionResult> Chat(string _mensaje)
         {
@@ -105,13 +108,13 @@ namespace InterfazMVC.Controllers
         //    return RedirectToAction("Chat");
         //}
 
+        //Metodo para cargar archivo a servidor
         [HttpPost]
         public async Task<IActionResult> ChatArchivo([FromForm(Name = "archivo")] IFormFile archivo)
         {
             if (archivo != null)
             {
                 Mensaje nuevoMensaje = new Mensaje();
-
                 nuevoMensaje.emisor = HttpContext.Session.GetString("Usuario");
                 nuevoMensaje.receptor = HttpContext.Session.GetString("Contacto");
                 string resultado = "url:"+archivo.FileName;
@@ -121,11 +124,11 @@ namespace InterfazMVC.Controllers
                 var response = await client.PostAsJsonAsync("http://localhost:34094/api/Chat/Escribir", nuevoMensaje);
                 string resultadopost = await response.Content.ReadAsStringAsync();
                 using var content = new MultipartFormDataContent(nuevoMensaje.emisor+nuevoMensaje.receptor);
-                FileStream bytes = new FileStream(rootpath.WebRootPath + "\\Archivos\\temp.txt", FileMode.Create);
+                FileStream bytes = new FileStream(rootpath.WebRootPath + "\\ArchivosChats\\"+archivo.FileName, FileMode.Create);
                 await archivo.CopyToAsync(bytes);
                 await bytes.FlushAsync();
                 bytes.Close();
-                var ruta = rootpath.WebRootPath + "\\Archivos\\temp.txt";
+                var ruta = rootpath.WebRootPath + "\\ArchivosChats\\" + archivo.FileName;
                 using Stream filestream = System.IO.File.OpenRead(ruta);
                 content.Add(new StreamContent(filestream),"archivo",archivo.FileName);
                 content.Add(new StringContent(nuevoMensaje.emisor),"emisor");
@@ -164,5 +167,12 @@ namespace InterfazMVC.Controllers
 
             return File(objetoStream, "application/octet-stream", buscarArchivo.cadena);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Buscar([FromQuery]string _mensaje)
+        {
+            return RedirectToAction("Chat", new {mensaje=_mensaje });
+        }
+
     }
 }

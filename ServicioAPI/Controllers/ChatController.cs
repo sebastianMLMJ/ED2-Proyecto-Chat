@@ -183,6 +183,9 @@ namespace ServicioAPI.Controllers
             var bytes = await System.IO.File.ReadAllBytesAsync(rootpath.WebRootPath + "\\ArchivosChats\\"+archivo+"."+ extension);
             var objetoStream = new MemoryStream(bytes);
 
+            System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + emisor + receptor + ".sdes");
+            System.IO.File.Delete(rootpath.WebRootPath + "\\ArchivosChats\\" + buscarArchivo.cadena);
+
             return File(objetoStream, "application/octet-stream",archivo+"."+ extension);
         }
 
