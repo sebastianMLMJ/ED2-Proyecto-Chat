@@ -8,30 +8,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Registro</title>
+    <title>CHAT METABOOK</title>
 </head>
-<body>
-
-    <h1>Ingresa tus datos</h1>
+<body bgcolor="#C0C0C0">
+    <center><img src="DatosRegistro.png" width="1000" height="300"></center>
     
+
     <form method="post">
 
-        <label for="usuario">Usuario</label>
-        <input type="text" name="usuario" id="usuario" />
+
+        <center>
+            <label for="usuario">Ingresa tu Usuario   </label>
+            <input type="text" name="usuario" id="usuario" />
+        </center>
         <br />
-        <label for="contrasenia">contraseña</label>
-        <input type="password" name="contrasenia" id="contrasenia" />
+        <center>
+            <label for="contrasenia">Ingresa tu contraseña</label>
+            <input type="password" name="contrasenia" id="contrasenia" />
+        </center>
         <br />
-        <label for="correo">correo</label>
-        <input type="text" name="correo" id="correo" />
+        <center>
+            <label for="correo">Ingresa tu correo   </label>
+            <input type="text" name="correo" id="correo" />
+        </center>
         <br />
-        <label for="nombre">nombre</label>
-        <input type="text" name="nombre" id="nombre" />
+        <center>
+            <label for="nombre">Ingresa tu nombre    </label>
+            <input type="text" name="nombre" id="nombre" />
+        </center>
         <br />
-        <label for="apellido">apellido</label>
-        <input type="text" name="apellido" id="apellido" />
+        <center>
+            <label for="apellido">Ingresa tu apellido   </label>
+            <input type="text" name="apellido" id="apellido" />
+        </center>
         <br />
-        <input type="submit" name="enviar" value="registrarse" />
+        <center><input type="submit" name="enviar" value="registrarse" /></center>
     </form>
 
     <div>@ViewBag.error</div>

@@ -8,19 +8,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Inicio</title>
+    <title>CHAT METABOOK</title>
 </head>
-<body>
-    <h1>!CHAT¡</h1>
-    <a href="/Registro">Registrese</a>
+<body bgcolor ="#C0C0C0">
+    <center><IMG SRC="bienvenida.png"></IMG>
+   
+    <br/>
+    <h1>Si no tienes una cuenta haz clic en "Registrese" </h1>
+    <h2><b><a href="/Registro">Registrese</a></b></h2></center>
     <form method="post">
-        <label for="usuario">Usuario</label>
+        <center><h1>Si tienes una cuenta ingresa tus datos para iniciar sesion</h1>
+        <label for="usuario">Usuario       :</label>
         <input type="text" name="usuario" id="usuario" />
-        <br/>
-        <label for="contrasenia">contraseña</label>
+        <br />
+        <label for="contrasenia">Contraseña:</label>
         <input type="password" name="contrasenia" id="contrasenia" />
-        <br/>
-        <input type="submit" name="enviar" value="Iniciar Sesion" />
+        <br />
+        <input type="submit" name="enviar" value="Iniciar Sesion" /></center>
     </form>
     <div>@ViewBag.error</div>
 </body>
